@@ -1,0 +1,19 @@
+{
+	"scripts": {
+		"start": "bun src/index.ts"
+	},
+	"main": "src/index.ts",
+	"engines": {
+		"bun": ">=1.0.0"
+	},
+	"dependencies": {
+		"bun-types": "^1.1.7",
+		"dotenv": "^16.4.5",
+		"google-auth-library": "^9.9.0",
+		"google-spreadsheet": "^4.1.1",
+		"ts-node": "^10.9.2"
+	},
+	"devDependencies": {
+		"@types/node": "^20.12.11"
+	}
+}

@@ -1,0 +1,37 @@
+{
+	"compilerOptions": {
+		"module": "ESNext", // Enable when running bun
+		//"module": "Node16", // Enable when running tsc
+		"esModuleInterop": true,
+		"target": "ESNext",
+		"moduleResolution": "Bundler", // Enable when running bun
+		//"moduleResolution": "Node16", // Enable when running tsc
+		"removeComments": true,
+		"allowSyntheticDefaultImports": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"allowImportingTsExtensions": true, // optional for bun
+		"noEmit": true, // optional for bun
+		"strict": true,
+		"strictNullChecks": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"paths": {
+			"@src/*": [
+				"./src/*"
+			],
+		},
+		"outDir": "./dist",
+		"types": [
+			"bun-types"
+		] // Enable when running bun
+	},
+	"include": [
+		"./**/*.ts",
+	],
+	"exclude": [
+		"node_modules",
+		"src/web/**/*",
+		"public/**/*",
+	],
+}
