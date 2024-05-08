@@ -86,14 +86,9 @@ export async function drawConclusion(preprompt:string, premise1: string, premise
 	return conclusion;
 }
 
-export function readableTime(time: number) {
-	const seconds = Math.floor(time / 1000);
-	const minutes = Math.floor(seconds / 60);
-	const hours = Math.floor(minutes / 60);
-	const days = Math.floor(hours / 24);
-
-	const timeString = `${days}d ${hours % 24}h ${minutes % 60}m ${seconds % 60}s`;
-	return timeString;
+export function readableDate(time: number) {
+	const date = new Date(time);
+	return date.toLocaleDateString() + " " + date.toLocaleTimeString();
 }
 
 export function intoSeconds(time: number) {

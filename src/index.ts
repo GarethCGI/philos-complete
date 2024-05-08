@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { GoogleSpreadsheet, GoogleSpreadsheetRow } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
-import { drawConclusion, getColumnByHeaderName, getSheetByName, intoSeconds, readableTime } from './lib';
+import { drawConclusion, getColumnByHeaderName, getSheetByName, intoSeconds, readableDate } from './lib';
 import fs from 'fs/promises';
 import { sleep } from 'bun';
 
@@ -76,7 +76,7 @@ const highest_num = rows.reduce((acc, row) => {
 console.log(`Last populated row:[${highest_num}] ${highest_row?.get(HEADERS.NUM)}, ${highest_row?.get(HEADERS.CONCEPT)}`);
 
 const start_time = Date.now();
-console.log('Starting to process rows', readableTime(start_time));
+console.log('Starting to process rows', readableDate(start_time));
 for await (const row of rows) {
 	const num = row.get(HEADERS.NUM);
 	const concept = row.get(HEADERS.CONCEPT);
@@ -125,4 +125,4 @@ for await (const row of rows) {
 	// Sleep to avoid rate limiting
 	await sleep(RATE_LIMIT);
 }
-console.log('Finished processing rows', `Elapsed time: ${intoSeconds(Date.now() - start_time)}`);
+console.log('Finished processing rows', `Elapsed time: ${intoSeconds(Date.now() - start_time)}`, readableDate(Date.now()));
