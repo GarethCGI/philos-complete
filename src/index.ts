@@ -77,6 +77,7 @@ console.log(`Last populated row:[${highest_num}] ${highest_row?.get(HEADERS.NUM)
 
 const start_time = Date.now();
 console.log('Starting to process rows', readableDate(start_time));
+const estimated_time = Math.ceil((rows.length * RATE_LIMIT) / 1000);
 for await (const row of rows) {
 	const num = row.get(HEADERS.NUM);
 	const concept = row.get(HEADERS.CONCEPT);
@@ -125,4 +126,5 @@ for await (const row of rows) {
 	// Sleep to avoid rate limiting
 	await sleep(RATE_LIMIT);
 }
-console.log('Finished processing rows', `Elapsed time: ${intoSeconds(Date.now() - start_time)}`, readableDate(Date.now()));
+const estimate_delta = intoSeconds(estimated_time * 1000 - (Date.now() - start_time))
+console.log('Finished processing rows', `Elapsed time: ${intoSeconds(Date.now() - start_time)}/${estimate_delta}}`, readableDate(Date.now()));
