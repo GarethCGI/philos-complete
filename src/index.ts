@@ -12,7 +12,7 @@ const cleanupMatchers: CleanupMatcher[] = [
 	(s, a) => { return s.includes('[]') || a.includes('[]') },
 	(s, a) => { return s.includes('...') || a.includes('...') },
 	(s, a) => { return s.includes('??') || a.includes('??') },
-	(_s, _a, o) => { return o.includes('**') },
+	(_s, a, o) => { return a.includes('**') || o.includes('**') },
 ];
 
 const ENV = {
@@ -48,6 +48,7 @@ const HEADERS = {
 	CONCEPT: 'Concepto',
 	ARG: 'Argumentos',
 	OBSERVATIONS: 'Observaciones',
+	R_COL: 'R',
 } as const;
 
 
@@ -57,23 +58,57 @@ const rows = await sheet.getRows({
 	limit: 1000,
 });
 
-// Find highest numbered row
-let highest_row: GoogleSpreadsheetRow | undefined;
-const highest_num = rows.reduce((acc, row) => {
-	if (row.get(HEADERS.NUM) === '') {
-		return acc;
+// Ennumerate rows
+let counter = 0;
+for await (const row of rows) {
+	// Check if both columns are present (concept and argument)
+	if (!row.get(HEADERS.CONCEPT) || !row.get(HEADERS.ARG)) {
+		console.log(`[Count] Skipping row ${row.rowNumber} because concept or argument is empty`);
+		row.set(HEADERS.NUM, '-');
+		await row.save();
+		continue;
 	}
-	const num = parseInt(row.get(HEADERS.NUM));
-	if (isNaN(num)) {
-		return acc;
+	counter++;
+	// If already matching, skip
+	if (row.get(HEADERS.NUM) === counter.toString()) {
+		console.log(`[Count] Skipping row ${row.rowNumber} because already counted`);
+		continue;
 	}
-	if (num > acc) {
-		highest_row = row;
-	}
-	return num > acc ? num : acc;
-}, 0);
+	// Set the row number
+	row.set(HEADERS.NUM, counter);
+	await row.save();
+	console.log(`[Count] Counted row ${row.rowNumber} as ${counter}`);
+	await sleep(RATE_LIMIT * 1.5);
+}
 
-console.log(`Last populated row:[${highest_num}] ${highest_row?.get(HEADERS.NUM)}, ${highest_row?.get(HEADERS.CONCEPT)}`);
+// Repetition finder by concept
+const seen = new Map<string, number>();
+for await (const row of rows) {
+	const concept = row.get(HEADERS.CONCEPT);
+	const arg = row.get(HEADERS.ARG);
+	if (!concept || !arg) {
+		continue;
+	}
+
+	if (!seen.has(concept)) {
+		console.log(`[Repetition] No need to mark ${concept} as repeated`);
+		seen.set(concept, row.get(HEADERS.NUM));
+		continue;
+	}
+	const num = seen.get(concept);
+
+	// Skip if already marked
+	if (row.get(HEADERS.R_COL) === num) {
+		console.log(`[Repetition] Skipping ${concept} as already marked as repeated with ${num}`);
+		continue;
+	}
+
+	// Mark as repeated
+	row.set(HEADERS.R_COL, num);
+	await row.save();
+	console.log(`[Repetition] Marked ${concept} as repeated with ${num}`);
+	await sleep(RATE_LIMIT * 1.5);
+}
 
 const start_time = Date.now();
 console.log('Starting to process rows', readableDate(start_time));
