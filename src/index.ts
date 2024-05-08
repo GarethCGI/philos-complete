@@ -64,6 +64,10 @@ for await (const row of rows) {
 	// Check if both columns are present (concept and argument)
 	if (!row.get(HEADERS.CONCEPT) || !row.get(HEADERS.ARG)) {
 		console.log(`[Count] Skipping row ${row.rowNumber} because concept or argument is empty`);
+
+		if (row.get(HEADERS.NUM) === '-') {
+			continue;
+		}
 		row.set(HEADERS.NUM, '-');
 		await row.save();
 		continue;
@@ -85,8 +89,7 @@ for await (const row of rows) {
 const seen = new Map<string, number>();
 for await (const row of rows) {
 	const concept = row.get(HEADERS.CONCEPT);
-	const arg = row.get(HEADERS.ARG);
-	if (!concept || !arg) {
+	if (!concept) {
 		continue;
 	}
 
